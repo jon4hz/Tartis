@@ -39,5 +39,5 @@ XMR: 82jT8bSjxpdQAJoDBv2ChA97FzwgvH9e7PrmukiroxrDduxkCJpoWNSJqAjZ7S4jJ1aFzHxnud4
 ***
 
 <p align="center">
-<a href="https://www.buymeacoffee.com/jon4hz" target="_blank"><img src="https://raw.githubusercontent.com/jon4hz/tartis/master/assets/bmac.png" alt="Buy Me A Coffee" width=200px ></a>
+<a href="https://www.buymeacoffee.com/jon4hz" target="_blank"><img src="https://raw.githubusercontent.com/jon4hz/tartis/main/assets/bmac.png" alt="Buy Me A Coffee" width=200px ></a>
 </p>
