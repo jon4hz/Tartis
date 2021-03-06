@@ -10,7 +10,7 @@ theme:
 
 nav:
     - Home: index.md
-    - Quickstart with Docker: '#'
+    - Quickstart with Docker: 'docker.md'
     - Usage: 
         - Telegram: telegram.md
     - Signal Formatting: formatting.md
