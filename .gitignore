@@ -1,8 +1,22 @@
+# Misc
+.vscode/
 config.ini
 *.crt
 *.key
 test.py
+
+# Python
 __pycache__
-.vscode/
+
+# Dev
 dev/
 *.log
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
