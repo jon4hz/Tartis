@@ -1,3 +1,4 @@
 unicorn-binance-websocket-api
 ccxt
 emoji
+regex
