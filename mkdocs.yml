@@ -14,3 +14,4 @@ nav:
     - Usage: 
         - Telegram: telegram.md
     - Signal Formatting: formatting.md
+    - Limitations: limits.md
