@@ -10,4 +10,6 @@ REGEX_CRYPTO_PAIR_SPECIAL = r"([\W]|_)"
 REGEX_CRYPTO_PAIR_SLASH = r"([\w]+(" + '|'.join(__markets) + r"))"
 # ex. [\w]+(USDT|BTC|ETH|BUSD|USD|BNB|TRX|XRP)
 
-REGEX_DETECT_VALUES = r"(^|(?<=[-:)\ ][\ \W]?))([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+))$"
+REGEX_DETECT_VALUES_SINGLE = r"(^|(?<=[-:)\ ][\ \W]?))([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+))$"
+
+REGEX_DETECT_PERCENTAGE = r"([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+))%"
