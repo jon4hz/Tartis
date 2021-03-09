@@ -1,3 +1,3 @@
-from .utils import *
-from .trader import *
-from .regexstrings import *
+from . import regexstrings
+from . import trader
+from . import utils
