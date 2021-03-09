@@ -27,6 +27,12 @@ I cannot guarantee any profit from using the bot. I am not responsible for any k
 
 ## Contribute
 This is an open source project which welcomes any kind of contributions. 
+### Setting up the development environment
+For the development `python3.8` (unicorn-binance-websocket-api dependency) is necessary.
+#### Python venv
+I recommend to use a python venv for an optimal installation of the development environement.
+To start the venv simply run `python3.8 -m venv venv` and activate it with `source venv/bin/activate`.
+If you want to leave the venv, execute `deactivate`.
 ### Contributors 
 [![Contributors](https://contributors-img.web.app/image?repo=jon4hz/tartis)](https://github.com/jon4hz/tartis/graphs/contributors)
 ## Donate
