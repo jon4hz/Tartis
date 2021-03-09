@@ -12,8 +12,6 @@ sys.path.append(parentdir)
 import tartis
 from texts import *
 
-perc_array = []
-
 def get_percent(text) -> tuple:
     x = regex.split(tartis.regexstrings.REGEX_DETECT_PERCENTAGE, text, flags=regex.I+regex.M)
     if len(x) > 1:
