@@ -4,6 +4,7 @@ config.ini
 *.crt
 *.key
 test.py
+config.py
 
 # Python
 __pycache__
