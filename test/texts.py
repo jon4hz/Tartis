@@ -67,3 +67,21 @@ Julius Caesar | Leverage
 ❗️STOP LOSS: $43250
 ⚠️ Take care about your Position Size! Trade Safe! ⚠️
 '''
+
+text5='''
+⚡️⚡️WAVESUSDT⚡️⚡️ 
+Exchange: Binance Futures 
+Leverage: Isolated(10x) 
+
+Entry Orders: 
+9.5161 
+
+Take Profit Orders: 
+1)9.55892 
+2)9.60174 
+3)9.65408 
+4)9.89674 
+5)10.46771
+
+Direction: Long
+'''
