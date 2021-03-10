@@ -39,7 +39,7 @@ signal = {
 }
 
 # split message in entry, tp and sl
-splitted_message = split_message.split_message(text4)
+splitted_message = split_message.split_message(text5)
 
 # create dict from splitted message
 preprocessing = {
@@ -66,32 +66,33 @@ for i in preprocessing:
                 else:
                     signal[i]['percent'].append(percent)
 
-               
+
 # postprocessing
 for i in signal:
     if len(signal[i].get('percent')) != len(signal[i].get('percent')):
         # tmp
         print("Error, could not parse signal")
 
-    # if only 1 target, set percent to 100
-    if len(signal[i].get('percent')) == 1:
-        signal[i]['percent'] = [100]
-    
-    # split percent between targets
-    elif None in signal[i].get('percent'):
-        for k in range(len(signal[i].get('percent'))):
-            signal[i]['percent'][k] = (100 / len(signal[i].get('percent')))
-    
-    # ensure percent total is 100
-    else:
-        perc_all = 100.
-        for j in signal[i].get('percent'):
-            perc_all -= j
-        # if sum of all percent not 100, add/sub missing to last
-        if perc_all != 0:
-            signal[i]['percent'][-1] += perc_all
+    if signal[i].get('point'):
+        # if only 1 target, set percent to 100
+        if len(signal[i].get('percent')) == 1:
+            signal[i]['percent'] = [100]
+        
+        # split percent between targets
+        elif None in signal[i].get('percent'):
+            for k in range(len(signal[i].get('percent'))):
+                signal[i]['percent'][k] = (100 / len(signal[i].get('percent')))
+        
+        # ensure percent total is 100
+        else:
+            perc_all = 100.
+            for j in signal[i].get('percent'):
+                perc_all -= j
+            # if sum of all percent not 100, add/sub missing to last
+            if perc_all != 0:
+                signal[i]['percent'][-1] += perc_all
 
 
 print(json.dumps(signal, indent=4))
 
-## todo check for keywords like "zone" or "between"
+## todo check for keywords like "zone" or "between", check for entry, tp and sl
