@@ -17,3 +17,5 @@ REGEX_DETECT_PERCENTAGE = r"([0-9]+([.][0-9]*)?|[.][0-9]+)%"
 REGEX_MATCH_FLOAT = r"([0-9]+([.][0-9]*)?|[.][0-9]+)"
 
 REGEX_REMOVE_AFTER_PERCENTAGE = r"[\W\D]*[\s]*$"
+
+REGEX_MATCH_ZONE = r"(between|zone)"
