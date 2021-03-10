@@ -39,7 +39,7 @@ signal = {
 }
 
 # split message in entry, tp and sl
-splitted_message = split_message.split_message(text5)
+splitted_message = split_message.split_message(text2)
 
 # create dict from splitted message
 preprocessing = {
@@ -50,8 +50,19 @@ preprocessing = {
 
 for i in preprocessing:
     for j in preprocessing.get(i):
+        # checks if keyword zone is in - Zone + % isn't supported
+        is_zone = regex.search(tartis.regexstrings.REGEX_MATCH_ZONE, j, flags=regex.I+regex.M)
+        # ensures element contains float
         float_in = regex.search(tartis.regexstrings.REGEX_MATCH_FLOAT, j, flags=regex.I+regex.M)
-        if float_in:
+        
+        if is_zone:
+            # match first two numbers in zone call
+            zone_start, zone_end, *_ = regex.findall(tartis.regexstrings.REGEX_MATCH_FLOAT, j)
+            # add zone as one point but with keyword "-" and percent 100
+            signal[i]['point'] = [f'{zone_start[0]}-{zone_end[0]}']
+            signal[i]['percent'] = [100]
+        
+        elif float_in:
             point, percent = get_percent(j)
             # remove potential stuff at the end of the target
             clean_string = regex.split(pattern=tartis.regexstrings.REGEX_REMOVE_AFTER_PERCENTAGE, string=point, flags=regex.I+regex.M )[0]
@@ -69,9 +80,9 @@ for i in preprocessing:
 
 # postprocessing
 for i in signal:
-    if len(signal[i].get('percent')) != len(signal[i].get('percent')):
+    if len(signal[i].get('point')) != len(signal[i].get('percent')):
         # tmp
-        print("Error, could not parse signal")
+        raise tartis.error.ParseError
 
     if signal[i].get('point'):
         # if only 1 target, set percent to 100
@@ -91,8 +102,11 @@ for i in signal:
             # if sum of all percent not 100, add/sub missing to last
             if perc_all != 0:
                 signal[i]['percent'][-1] += perc_all
-
+    else:
+        # check if i == entry or tp
+        if i == 'entry':
+            raise tartis.error.NoEntryFound
+        elif i == 'tp':
+            raise tartis.error.NoTakeProfitFound
 
 print(json.dumps(signal, indent=4))
-
-## todo check for keywords like "zone" or "between", check for entry, tp and sl
