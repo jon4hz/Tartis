@@ -4,6 +4,7 @@ config.ini
 *.crt
 *.key
 test.py
+tmp.py
 config.py
 
 # Python
