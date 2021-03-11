@@ -2,7 +2,7 @@ import emoji, regex
 from . import regexstrings as rs
 from . import error
 
-class messageParser:
+class messageParser(object):
     
     def __init__(self):
         pass
@@ -36,7 +36,7 @@ class messageParser:
 
             return pair
         except IndexError:
-            raise error.TartisError("NoPairFound")
+            raise error.NoPairFound
 
     @staticmethod
     def __get_percent(text):
@@ -151,7 +151,7 @@ class messageParser:
         for i in signal:
             if len(signal[i].get('point')) != len(signal[i].get('percent')):
                 # tmp
-                raise error.TartisError("TargetPercentsmatch")
+                raise error.ParseError
 
             if signal[i].get('point'):
                 # if only 1 target, set percent to 100
@@ -174,9 +174,9 @@ class messageParser:
             else:
                 # check if i == entry or tp
                 if i == 'entry':
-                    raise error.TartisError("NoEntryFound")
+                    raise error.NoEntryFound
                 elif i == 'tp':
-                    raise error.TartisError("NoTakeProfitFound")
+                    raise error.NoTakeProfitFound
 
         return signal
         
