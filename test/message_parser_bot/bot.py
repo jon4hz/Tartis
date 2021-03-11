@@ -36,12 +36,16 @@ def welcome(update, context):
 
 def message_handler(update, context):
     try:
-        signal = message_parser.parse_message(update.message.text)
+        x = message_parser.parse_message(update.message.text)
+        string = f'{x["pair"]}:\n'
+        for t in ['entry', 'tp', 'sl']:
+            string += f'{t.upper()}1-X:\n'
+            for j in range(len(x[t]['point'])):
+                string += f"{x[t]['point'][j]} - {x[t]['percent'][j]}%\n"
         context.bot.send_message(
             chat_id = update.effective_chat.id,
-            text = signal
+            text = string
         )
-        print(signal)
     except Exception as e:
         context.bot.send_message(
             chat_id = update.effective_chat.id,
