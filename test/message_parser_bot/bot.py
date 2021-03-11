@@ -45,7 +45,7 @@ def message_handler(update, context):
     except Exception as e:
         context.bot.send_message(
             chat_id = update.effective_chat.id,
-            text = f'Error - {type(e).__name__} {e}'
+            text = f'Error - {type(e).__name__}, {__file__}, {e.__traceback__.tb_lineno}, {e}'
         )
 #==================================================================================================
 # MAIN

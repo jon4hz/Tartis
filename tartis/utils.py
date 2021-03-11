@@ -27,7 +27,9 @@ class messageParser(object):
             # Match pair
             pair = regex.findall(rs.REGEX_CRYPTO_PAIR, text)[0]
             # remove special chars
-            pair = ''.join(regex.split(rs.REGEX_CRYPTO_PAIR_SPECIAL, pair))
+            pair = regex.sub(rs.REGEX_CRYPTO_PAIR_SPECIAL, '', pair)
+            # remove "\ufe0f" - bug?
+            pair = regex.sub(r"\ufe0f", '', pair)
             # add slash to pair
             pair = regex.split(rs.REGEX_CRYPTO_PAIR_SLASH, pair)
             pair = list(filter(None, pair))
@@ -126,6 +128,7 @@ class messageParser(object):
                 
                 if is_zone:
                     # match first two numbers in zone call
+                    ### debug
                     zone_start, zone_end, *_ = regex.findall(rs.REGEX_MATCH_FLOAT, j)
                     # add zone as one point but with keyword "-" and percent 100
                     signal[i]['point'] = [f'{zone_start[0]}-{zone_end[0]}']
