@@ -13,11 +13,15 @@ from telegram.ext import (
     Updater,
     MessageHandler,
     CommandHandler,
+    CallbackQueryHandler,
     Defaults,
     Filters
 )
 from telegram import (
-    ParseMode
+    ParseMode,
+    ReplyKeyboardMarkup,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton
 )
 # import tartis
 import tartis
@@ -44,7 +48,11 @@ def message_handler(update, context):
                 string += f"{x[t]['point'][j]} - {x[t]['percent'][j]}%\n"
         context.bot.send_message(
             chat_id = update.effective_chat.id,
-            text = string
+            text = string,
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("👍", callback_data="ok"),
+                InlineKeyboardButton("👎", callback_data="nok")]
+        ])
         )
     except Exception as e:
         context.bot.send_message(
@@ -61,6 +69,16 @@ def message_handler(update, context):
         chat_id = update.effective_chat.id,
         text = string
     ) """
+
+def parsing_feedback(update, context):
+    context.bot.edit_message_text(
+        chat_id = update.effective_chat.id,
+        message_id = update.callback_query.message.message_id,
+        text = update.effective_message.text,
+        reply_markup = None
+    )
+    print(update)
+
 #==================================================================================================
 # MAIN
 #==================================================================================================
@@ -79,6 +97,9 @@ dp.add_handler(
 
 dp.add_handler(
     MessageHandler(Filters.text, message_handler)
+)
+dp.add_handler(
+    CallbackQueryHandler(parsing_feedback, pattern=r"(ok|nok)")
 )
 
 updater.start_polling()
