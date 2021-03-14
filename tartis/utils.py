@@ -61,12 +61,15 @@ class messageParser(object):
         keywords = {
             'ENTRY': r"(entry|open)",
             'TP': r"(Take Profit|TP[\d]+|Take-Profit|Target)",
-            'SL': r"(stop|stoploss|stop-loss|SL)"
+            'SL': r"(stop|stoploss|stop-loss|SL)",
+            'OTHER': r"(leverage)"
         }
 
         ENTRY = []
         TP = []
         SL = []
+        # list with certain keywords to filter them out
+        OTHER = []
         active_list = ''
 
         for i in text.split('\n'):
@@ -76,6 +79,10 @@ class messageParser(object):
                 active_list = 'TP'
             elif regex.search(keywords.get('SL'), i, regex.I+regex.M):
                 active_list = 'SL'
+            elif regex.search(keywords.get('SL'), i, regex.I+regex.M):
+                active_list = 'SL'
+            elif regex.search(keywords.get('OTHER'), i, regex.I+regex.M):
+                active_list = 'OTHER'
 
             if active_list == 'ENTRY':
                 ENTRY.append(i)
@@ -83,6 +90,8 @@ class messageParser(object):
                 TP.append(i)
             elif active_list == 'SL':
                 SL.append(i)
+            elif active_list == 'OTHER':
+                OTHER.append(i)
 
         return ENTRY, TP, SL
 
@@ -90,6 +99,7 @@ class messageParser(object):
     def __get_values_from_message(text):
         """
         Get all the important values from the signal after splitting the message
+        :text  message/signal from a chat
         """
 
         # empty dict for signal
@@ -128,8 +138,10 @@ class messageParser(object):
                 
                 if is_zone:
                     # match first two numbers in zone call
-                    ### debug
-                    zone_start, zone_end, *_ = regex.findall(rs.REGEX_MATCH_FLOAT, j)
+                    try:
+                        zone_start, zone_end, *_ = regex.findall(rs.REGEX_MATCH_FLOAT, j)
+                    except Exception as e:
+                        raise error.NoZoneFound
                     # add zone as one point but with keyword "-" and percent 100
                     signal[i]['point'] = [f'{zone_start[0]}-{zone_end[0]}']
                     signal[i]['percent'] = [100]
@@ -139,7 +151,7 @@ class messageParser(object):
                     # remove potential stuff at the end of the target
                     clean_string = regex.split(pattern=rs.REGEX_REMOVE_AFTER_PERCENTAGE, string=point, flags=regex.I+regex.M )[0]
                     # get only value
-                    clean_string_reg = regex.findall(pattern=rs.REGEX_DETECT_VALUES_SINGLE, string=clean_string, flags=regex.I+regex.M)
+                    clean_string_reg = regex.findall(pattern=rs.REGEX_DETECT_SIGNAL_VALUES, string=clean_string, flags=regex.I+regex.M)
                     # if value detected, add
                     if clean_string_reg:
                         signal[i]['point'].append(float(clean_string_reg[0][0]))
@@ -190,9 +202,9 @@ class messageParser(object):
         """
         self.text = messageParser.__remove_emojis(text).upper()
 
-        self.pair = messageParser.__find_pair(text)
+        self.pair = messageParser.__find_pair(self.text)
 
-        self.signal = messageParser.__get_values_from_message(text)
+        self.signal = messageParser.__get_values_from_message(self.text)
 
         self.signal['pair'] = self.pair
         

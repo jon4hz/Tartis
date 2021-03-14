@@ -51,6 +51,16 @@ def message_handler(update, context):
             chat_id = update.effective_chat.id,
             text = f'Error - {type(e).__name__}, {__file__}, {e.__traceback__.tb_lineno}, {e}'
         )
+    """ x = message_parser.parse_message(update.message.text)
+    string = f'{x["pair"]}:\n'
+    for t in ['entry', 'tp', 'sl']:
+        string += f'{t.upper()}1-X:\n'
+        for j in range(len(x[t]['point'])):
+            string += f"{x[t]['point'][j]} - {x[t]['percent'][j]}%\n"
+    context.bot.send_message(
+        chat_id = update.effective_chat.id,
+        text = string
+    ) """
 #==================================================================================================
 # MAIN
 #==================================================================================================

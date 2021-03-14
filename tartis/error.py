@@ -21,3 +21,7 @@ class ParseError(Error, message=__name__):
 class NoPairFound(Error, message=__name__):
     """"Raised when no pair is found"""
     pass
+
+class NoZoneFound(Error, message=__name__):
+    """"Raised when no pair is found"""
+    pass
