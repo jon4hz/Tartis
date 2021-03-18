@@ -30,6 +30,7 @@ test/*/tartis
 # docker 
 .secrets
 database/tartis
+database.db
 
 #PTB
 persitenceBot.pickle*

@@ -28,14 +28,17 @@ from telegram import (
 # import tartis
 import tartis
 # other
-import sys
+import sys, logging
+
+logging.basicConfig(level=logging.INFO,
+                    format="{asctime} [{levelname:8}] {process} {thread} {module}: {message}",
+                    style="{")
 
 #==================================================================================================
 # TELEGRAM FUNCTIONS
 #==================================================================================================
 
 def start(update, context):
-    print(1)
     print(context.bot_data)
     
 
@@ -43,14 +46,20 @@ def start_websocket(update, context):
     x = update.effective_message.text
     if '/' in x:
         x = ''.join(x.split('/'))
-    context.bot_data[x] = tartis.websocket('binance.com', 'miniTicker', x).start()
+    tartis.websocket('binance.com', 'miniTicker', x).start()
+    if 'market_data' in context.bot_data.keys():
+        context.bot_data['market_data'].append(x)
+    else:
+        context.bot_data['market_data'] = [x]
+
+        
 #==================================================================================================
 # MAIN
 #==================================================================================================
 
 # Telegram
 defaults = Defaults(parse_mode=ParseMode.HTML)
-pp = PicklePersistence(filename='persitenceBot.pickle', single_file=False, store_bot_data=True)
+pp = PicklePersistence(filename='persitenceBot.pickle', single_file=False)
 updater = Updater(TOKEN, use_context=True, persistence=pp, defaults=defaults)
 dp = updater.dispatcher
 
