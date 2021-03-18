@@ -25,4 +25,4 @@ try:
 except AuthenticationError as e:
     print(f"Error authentication error: {e}")
 
-print(trader.get_account_balance())
+print(trader.get_open_orders('BTC/USDT'))

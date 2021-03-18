@@ -38,5 +38,6 @@ class trader:
         if self.exchange.has.get('fetchBalance'):
             return self.exchange.fetch_balance()
 
-    def list_trades(self):
-        pass
+    def get_open_orders(self, symbol):
+        if self.exchange.has.get('fetchOpenOrders'):
+            return self.exchange.fetch_open_orders(symbol)

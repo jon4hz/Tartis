@@ -113,7 +113,7 @@ def parsing_feedback(update, context):
 #==================================================================================================
 
 # Create Tartis Message Parser
-message_parser = tartis.utils.messageParser()
+message_parser = tartis.messageParser()
 
 # Telegram
 defaults = Defaults(parse_mode=ParseMode.HTML)

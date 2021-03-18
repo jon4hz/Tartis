@@ -17,7 +17,7 @@ import tartis
 from texts import *
 
 def get_percent(text) -> tuple:
-    x = regex.split(tartis.regexstrings.REGEX_DETECT_PERCENTAGE, text, flags=regex.I+regex.M)
+    x = regex.split(tartis.REGEX_DETECT_PERCENTAGE, text, flags=regex.I+regex.M)
     if len(x) > 1:
         return x[0], x[1]
     elif len(x) == 1:
@@ -55,13 +55,13 @@ preprocessing = {
 for i in preprocessing:
     for j in preprocessing.get(i):
         # checks if keyword zone is in - Zone + % isn't supported
-        is_zone = regex.search(tartis.regexstrings.REGEX_MATCH_ZONE, j, flags=regex.I+regex.M)
+        is_zone = regex.search(tartis.REGEX_MATCH_ZONE, j, flags=regex.I+regex.M)
         # ensures element contains float
-        float_in = regex.search(tartis.regexstrings.REGEX_MATCH_FLOAT, j, flags=regex.I+regex.M)
+        float_in = regex.search(tartis.REGEX_MATCH_FLOAT, j, flags=regex.I+regex.M)
         
         if is_zone:
             # match first two numbers in zone call
-            zone_start, zone_end, *_ = regex.findall(tartis.regexstrings.REGEX_MATCH_FLOAT, j)
+            zone_start, zone_end, *_ = regex.findall(tartis.REGEX_MATCH_FLOAT, j)
             # add zone as one point but with keyword "-" and percent 100
             signal[i]['point'] = [f'{zone_start[0]}-{zone_end[0]}']
             signal[i]['percent'] = [100]
@@ -69,9 +69,9 @@ for i in preprocessing:
         elif float_in:
             point, percent = get_percent(j)
             # remove potential stuff at the end of the target
-            clean_string = regex.split(pattern=tartis.regexstrings.REGEX_REMOVE_AFTER_PERCENTAGE, string=point, flags=regex.I+regex.M )[0]
+            clean_string = regex.split(pattern=tartis.REGEX_REMOVE_AFTER_PERCENTAGE, string=point, flags=regex.I+regex.M )[0]
             # get only value
-            clean_string_reg = regex.findall(pattern=tartis.regexstrings.REGEX_DETECT_VALUES_SINGLE, string=clean_string, flags=regex.I+regex.M)
+            clean_string_reg = regex.findall(pattern=tartis.REGEX_DETECT_SIGNAL_VALUES, string=clean_string, flags=regex.I+regex.M)
             # if value detected, add
             if clean_string_reg:
                 signal[i]['point'].append(float(clean_string_reg[0][0]))

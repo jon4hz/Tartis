@@ -26,3 +26,10 @@ venv.bak/
 
 # Softlinks
 test/*/tartis
+
+# docker 
+.secrets
+database/tartis
+
+#PTB
+persitenceBot.pickle*

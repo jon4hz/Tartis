@@ -2,6 +2,7 @@
 ⚠️ At the moment this project is still work in progress ⚠️
 ## About
 This will be a trading bot that uses signals from [Telegram](https://telegram.org).
+
 ### Limitations
 At the beginning the bot will have a few limitations:
 * Crypto only. No support for stocks or forex planned!
@@ -18,7 +19,7 @@ At the beginning the bot will have a few limitations:
 Currently I have planned the following features. I don't know yet when and if I can implement all of them but I will try my best.
 * **Trading**: Open, close, mananage and overwatch your trades.
 * **Autotrading**: Automatically open trades from certain channels.
-* **Trailing**: Nothing better than moving your stop loss into profit.
+* **Trailing**: Nothing better than moving your stop loss into profit. (very simple first, advanced might follow)
 * **Notifications**: Fall out of bed in shock at every trade.
 * **History**: Always be reminded of your bad decisions.
 
