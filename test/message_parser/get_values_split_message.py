@@ -7,9 +7,13 @@ import json
 # sys hacking for tartis import (parent folder)
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
+second_parentdir = os.path.dirname(parentdir)
 sys.path.append(parentdir)
+sys.path.append(second_parentdir)
 
+# pylint: disable=import-error
 import tartis
+# pylint: enable=import-error
 from texts import *
 
 def get_percent(text) -> tuple:

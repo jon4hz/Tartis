@@ -25,3 +25,7 @@ class NoPairFound(Error, message=__name__):
 class NoZoneFound(Error, message=__name__):
     """"Raised when no pair is found"""
     pass
+
+class WrongExchange(Error, message=__name__):
+    """"Raised when no pair is found"""
+    pass
