@@ -6,8 +6,11 @@
 #
 #####################################################################################################################################################
 
-# import Bot Token
-from config import TOKEN
+# import configs
+from config import (
+    TOKEN, 
+    ADMIN_CHANNEL
+)
 # import python-telegram-bot modules
 from telegram.ext import (
     Updater,
@@ -40,7 +43,7 @@ def welcome(update, context):
 
 def message_handler(update, context):
     try:
-        x = message_parser.parse_message(update.message.text)
+        x = message_parser.parse_message(update.effective_message.text)
         string = f'{x["pair"]}:\n'
         for t in ['entry', 'tp', 'sl']:
             string += f'{t.upper()}1-X:\n'
@@ -49,6 +52,7 @@ def message_handler(update, context):
         context.bot.send_message(
             chat_id = update.effective_chat.id,
             text = string,
+            reply_to_message_id = update.message.message_id,
             reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton("👍", callback_data="ok"),
                 InlineKeyboardButton("👎", callback_data="nok")]
@@ -58,6 +62,10 @@ def message_handler(update, context):
         context.bot.send_message(
             chat_id = update.effective_chat.id,
             text = f'Error - {type(e).__name__}, {__file__}, {e.__traceback__.tb_lineno}, {e}'
+        )
+        context.bot.send_message(
+            chat_id = ADMIN_CHANNEL,
+            text = update.effective_message.text
         )
     """ x = message_parser.parse_message(update.message.text)
     string = f'{x["pair"]}:\n'
@@ -71,13 +79,34 @@ def message_handler(update, context):
     ) """
 
 def parsing_feedback(update, context):
-    context.bot.edit_message_text(
-        chat_id = update.effective_chat.id,
-        message_id = update.callback_query.message.message_id,
-        text = update.effective_message.text,
-        reply_markup = None
-    )
-    print(update)
+    if update.callback_query.data == 'ok':
+        context.bot.edit_message_text(
+            chat_id = update.effective_chat.id,
+            message_id = update.callback_query.message.message_id,
+            text = update.effective_message.text,
+            reply_markup = None
+        )
+        context.bot.answer_callback_query(
+            callback_query_id = update.callback_query.id,
+            text = 'Nice 🥳'
+        )
+
+    elif update.callback_query.data == 'nok':
+        context.bot.edit_message_text(
+            chat_id = update.effective_chat.id,
+            message_id = update.callback_query.message.message_id,
+            text = update.effective_message.text,
+            reply_markup = None
+        )
+        context.bot.answer_callback_query(
+            callback_query_id = update.callback_query.id,
+            text = 'Mistake reported 🤓'
+        )
+        context.bot.forward_message(
+            chat_id = ADMIN_CHANNEL,
+            from_chat_id = update.effective_chat.id,
+            message_id = update.callback_query.message.reply_to_message.message_id
+        )
 
 #==================================================================================================
 # MAIN
