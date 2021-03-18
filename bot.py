@@ -50,7 +50,7 @@ def start_websocket(update, context):
 
 # Telegram
 defaults = Defaults(parse_mode=ParseMode.HTML)
-pp = PicklePersistence(filename='persitenceBot.pickle', store_bot_data=True)
+pp = PicklePersistence(filename='persitenceBot.pickle', single_file=False, store_bot_data=True)
 updater = Updater(TOKEN, use_context=True, persistence=pp, defaults=defaults)
 dp = updater.dispatcher
 
