@@ -26,6 +26,7 @@ venv.bak/
 
 # Softlinks
 test/*/tartis
+test/*/*/tartis
 
 # docker 
 .secrets
