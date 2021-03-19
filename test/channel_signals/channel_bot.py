@@ -82,6 +82,7 @@ def init(update, context):
         CREATE TABLE IF NOT EXISTS trades(
             id integer PRIMARY KEY,
             symbol string,
+            direction string,
             exchange string,
             open_time int,
             close_time int,
@@ -157,8 +158,8 @@ def init(update, context):
 
 def get_message(update, context):
     if bot_initialized:
-        x = update.effective_message.text
-        if '/' in x:
+        message = update.effective_message.text
+        if '/' in message:
             x = ''.join(x.split('/'))
 
         if 'market_data' in context.bot_data.keys():
@@ -172,7 +173,7 @@ def get_message(update, context):
             context.bot_data['market_data_stream'] = {x: str(stream)}
     
 
-        
+ 
 #==================================================================================================
 # MAIN
 #==================================================================================================
