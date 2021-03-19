@@ -153,7 +153,7 @@ class messageParser(object):
                     # get only value
                     clean_string_reg = regex.findall(pattern=rs.REGEX_DETECT_SIGNAL_VALUES, string=clean_string, flags=regex.I+regex.M)
                     # if value detected, add
-                    if clean_string_reg:
+                    if clean_string_reg and len(signal[i]['point']) < 10:
                         signal[i]['point'].append(float(clean_string_reg[0][0]))
                         # try to convert percent to float
                         if percent:
