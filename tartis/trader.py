@@ -45,14 +45,17 @@ class trader:
             return self.exchange.fetch_open_orders(symbol)
 
 class market_data():
-    def __init__(self, exchange, stream, coin, database):
+    def __init__(self, exchange, stream, coin):
         self.coin = coin
         self.stream = stream
         self.exchange = exchange
-        self.binance_websocket = BinanceWebSocketApiManager(exchange=self.exchange)
-        self.database = database
 
-    def handle_market_data_stream(self, binance_websocket_api_manager):
+        if self.exchange == 'binance.com':
+            self.binance_websocket = BinanceWebSocketApiManager(exchange=self.exchange)
+        elif self.exchange == 'binance.com-futures':
+            self.binance_websocket = BinanceWebSocketApiManager(exchange=self.exchange)
+
+    def handle_market_data_stream(self, binance_websocket_api_manager, pool):
         while True:
             if binance_websocket_api_manager.is_manager_stopping():
                 exit(0)
@@ -61,15 +64,13 @@ class market_data():
                 time.sleep(0.01)
             else:
                 # check trading database
-                self.con = sqlite3.connect(self.database)
-                self.cur = self.con.cursor()
-                self.con.close()
+                pass
                 
                 
 
-    def start(self):
+    def start(self, pool):
         self.user_data_stream = self.binance_websocket.create_stream(self.stream, self.coin, output='dict')
-        self.worker_thread = threading.Thread(target=self.handle_market_data_stream, args=(self.binance_websocket,))
+        self.worker_thread = threading.Thread(target=self.handle_market_data_stream, args=(self.binance_websocket,pool))
         self.worker_thread.start()
         return self.user_data_stream
 

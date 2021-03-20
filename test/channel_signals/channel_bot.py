@@ -28,7 +28,8 @@ from telegram import (
 # import tartis
 import tartis
 # other
-import sys, logging, os, sqlite3, json
+import sys, logging, os, psycopg2, json, datetime
+from psycopg2.pool import ThreadedConnectionPool
 
 logging.basicConfig(level=logging.INFO,
                     filename=os.path.basename(__file__) + '.log',
@@ -39,7 +40,7 @@ logging.basicConfig(level=logging.INFO,
 # CONSTANTS
 #==================================================================================================
 
-DATABASE_FILE = 'database.db'
+
 
 #==================================================================================================
 # VARIABLES
@@ -57,10 +58,8 @@ def start(update, context):
 def init(update, context):
     global bot_initialized
 
-    print('Start Tartis initialization...')
-
     if not bot_initialized:
-
+        print('Starting Tartis initialization...')
         # remove old uuids from past streams
         if 'market_data_stream' in context.bot_data.keys():
             context.bot_data['market_data_stream'].clear()
@@ -70,116 +69,144 @@ def init(update, context):
         if context.bot_data.get('market_data'):
             for i in context.bot_data.get('market_data'):
                 if context.bot_data['market_data'].get(i):
-                    stream = tartis.market_data('binance.com-futures', 'miniTicker', i, DATABASE_FILE).start()
+                    stream = tartis.market_data('binance.com-futures', 'miniTicker', i).start(dbpool)
                     context.bot_data['market_data_stream'][i] = str(stream)
 
         # create database for trades
         # database
-        con = sqlite3.connect(DATABASE_FILE)
-        cur = con.cursor()
-        cur.execute(
+        conn = dbpool.getconn()
+        cur = conn.cursor()
+        statements = ['''
+        CREATE TABLE IF NOT EXISTS trades
+        (
+            id            bigserial,
+            symbol        varchar(15) NOT NULL,
+            direction     varchar(5)  NOT NULL,
+            exchange      varchar(50),
+            open_time     integer    ,
+            close_time    integer    ,
+            channel_trade boolean    ,
+            PRIMARY KEY (id)
+        );
+        ''',
         '''
-        CREATE TABLE IF NOT EXISTS trades(
-            id integer PRIMARY KEY,
-            symbol string,
-            direction string,
-            exchange string,
-            open_time int,
-            close_time int,
-            entry_filled integer,
-            entry_1 string,
-            entry_2 string,
-            entry_3 string,
-            entry_4 string,
-            entry_5 string,
-            entry_6 string,
-            entry_7 string,
-            entry_8 string,
-            entry_9 string,
-            entry_10 string,
-            tp_1 string,
-            tp_2 string,
-            tp_3 string,
-            tp_4 string,
-            tp_5 string,
-            tp_6 string,
-            tp_7 string,
-            tp_8 string,
-            tp_9 string,
-            tp_10 string,
-            sl_1 string,
-            sl_2 string,
-            sl_3 string,
-            sl_4 string,
-            sl_5 string,
-            sl_6 string,
-            sl_7 string,
-            sl_8 string,
-            sl_9 string,
-            sl_10 string,
-            entry_1_filled string,
-            entry_2_filled string,
-            entry_3_filled string,
-            entry_4_filled string,
-            entry_5_filled string,
-            entry_6_filled string,
-            entry_7_filled string,
-            entry_8_filled string,
-            entry_9_filled string,
-            entry_10_filled string,
-            tp_1_filled string,
-            tp_2_filled string,
-            tp_3_filled string,
-            tp_4_filled string,
-            tp_5_filled string,
-            tp_6_filled string,
-            tp_7_filled string,
-            tp_8_filled string,
-            tp_9_filled string,
-            tp_10_filled string,
-            sl_1_filled string,
-            sl_2_filled string,
-            sl_3_filled string,
-            sl_4_filled string,
-            sl_5_filled string,
-            sl_6_filled string,
-            sl_7_filled string,
-            sl_8_filled string,
-            sl_9_filled string,
-            sl_10_filled string
-        )
-        ''')
-    con.commit()
-    con.close()
+        CREATE TABLE IF NOT EXISTS entries
+        (
+            id       bigserial,
+            trade_id bigint  NOT NULL,
+            price    decimal NOT NULL,
+            quantity decimal NOT NULL,
+            filled   boolean,
+            PRIMARY KEY (id),
+            CONSTRAINT FK_trades_TO_entries
+                FOREIGN KEY (trade_id)
+                REFERENCES trades (id)
+        );''',
+        '''
+        CREATE TABLE IF NOT EXISTS sls
+        (
+            id       bigserial,
+            trade_id bigint ,
+            price    decimal NOT NULL,
+            quantity decimal NOT NULL,
+            filled   boolean,
+            PRIMARY KEY (id),
+            CONSTRAINT FK_trades_TO_sls
+                FOREIGN KEY (trade_id)
+                REFERENCES trades (id)
+        );
+        ''',
+        '''
+        CREATE TABLE IF NOT EXISTS tps
+        (
+            id       bigserial,
+            trade_id bigint  NOT NULL,
+            price    decimal NOT NULL,
+            quantity decimal NOT NULL,
+            filled   boolean,
+            PRIMARY KEY (id),
+            CONSTRAINT FK_trades_TO_tps
+                FOREIGN KEY (trade_id)
+                REFERENCES trades (id)
+        );  
+        ''']
+        for statement in statements:
+            cur.execute(statement)
+        conn.commit()
+        dbpool.putconn(conn)
 
-    bot_initialized = True
-    print('Initialization complete!')
+        bot_initialized = True
+        print('Initialization complete!')
+    else:
+        print('Bot already initialized. Nothing to do...')
     
 
 def get_message(update, context):
     if bot_initialized:
-        message = update.effective_message.text
-        if '/' in message:
-            x = ''.join(x.split('/'))
+        signal = message_parser.parse_message(update.effective_message.text)
+        print(signal)
+
+        # get direction
+        if float(signal['entry']['point'][0]) < float(signal['tp']['point'][0]):
+            direction = 'long'
+        else:
+            direction = 'short'
+
+        # set exchange
+        exchange = 'binance'
+
+        conn = dbpool.getconn()
+        cur = conn.cursor()
+        cur.execute(
+            f'''
+            INSERT INTO trades(
+                symbol,
+                direction,
+                exchange,
+                open_time,
+                channel_trade
+            ) VALUES (
+                '{signal['pair']}',
+                '{direction}',
+                '{exchange}',
+                '{int(datetime.datetime.utcnow().timestamp())}',
+                True
+            ) RETURNING id
+            '''
+        )
+        print(cur.fetchone())
+        dbpool.putconn(conn)
+        # start market websocket for symbol
+        if '/' in signal['pair']:
+            symbol = ''.join(signal['pair'].split('/'))
 
         if 'market_data' in context.bot_data.keys():
-            if x not in context.bot_data['market_data']:
-                stream = tartis.market_data('binance.com-futures', 'miniTicker', x, DATABASE_FILE).start()
-                context.bot_data['market_data'][x] = True
-                context.bot_data['market_data_stream'][x] = str(stream)
+            if symbol not in context.bot_data['market_data']:
+                stream = tartis.market_data('binance.com-futures', 'miniTicker', symbol).start(dbpool)
+                context.bot_data['market_data'][symbol] = True
+                context.bot_data['market_data_stream'][symbol] = str(stream)
         else:
-            context.bot_data['market_data'] = {x: True}
-            stream = tartis.market_data('binance.com-futures', 'miniTicker', x, DATABASE_FILE).start()
-            context.bot_data['market_data_stream'] = {x: str(stream)}
-    
-
- 
+            context.bot_data['market_data'] = {symbol: True}
+            stream = tartis.market_data('binance.com-futures', 'miniTicker', symbol).start(dbpool)
+            context.bot_data['market_data_stream'] = {symbol: str(stream)}
+            
 #==================================================================================================
 # MAIN
 #==================================================================================================
 
 # Tartis
 message_parser = tartis.messageParser()
+
+# database
+dbpool = ThreadedConnectionPool(
+    1, 
+    100,
+    dbname = 'tartis',
+    host = 'localhost',
+    port = '5432',
+    user = 'tartis',
+    password = 'tmppassword'
+)
 
 # Telegram
 defaults = Defaults(parse_mode=ParseMode.HTML)

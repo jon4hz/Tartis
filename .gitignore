@@ -35,3 +35,6 @@ database.db
 
 #PTB
 persitenceBot.pickle*
+
+# database
+*session.sql
