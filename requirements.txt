@@ -3,3 +3,4 @@ ccxt
 emoji
 regex
 python-telegram-bot
+psycopg2
