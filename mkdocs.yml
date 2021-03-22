@@ -8,6 +8,10 @@ theme:
   icon:
     repo: fontawesome/brands/github
 
+plugins:
+    - search
+    - pdf-export
+
 nav:
     - Home: index.md
     - Quickstart with Docker: 'docker.md'
