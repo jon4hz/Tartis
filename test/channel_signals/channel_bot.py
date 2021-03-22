@@ -76,6 +76,7 @@ def init(update, context):
             open_time     integer    ,
             close_time    integer    ,
             channel_trade boolean    ,
+            telegram_channel_id bigint,
             telegram_message_id bigint,
             PRIMARY KEY (id)
         );
@@ -141,7 +142,6 @@ def init(update, context):
                     j = ''.join(i.split('/'))
                     stream = tartis.market_data('binance.com-futures', 'miniTicker', j).start(dbpool, i, bot)
                     context.bot_data['market_data_stream'][i] = str(stream)
-
         bot_initialized = True
         print('Initialization complete!')
     else:
@@ -172,14 +172,16 @@ def get_message(update, context):
                 exchange,
                 open_time,
                 channel_trade,
-                telegram_message_id
+                telegram_message_id,
+                telegram_channel_id
             ) VALUES (
                 '{signal['pair']}',
                 '{direction}',
                 '{exchange}',
                 '{int(datetime.datetime.utcnow().timestamp())}',
                 True,
-                '{update.message.message_id}'
+                '{update.message.message_id}',
+                '{update.effective_chat.id}'
             ) RETURNING id
             '''
         )
@@ -238,7 +240,7 @@ def get_message(update, context):
         symbol = ''.join(signal['pair'].split('/'))
 
         if 'market_data' in context.bot_data.keys():
-            if symbol not in context.bot_data['market_data']:
+            if signal['pair'] not in context.bot_data['market_data']:
                 stream = tartis.market_data('binance.com-futures', 'miniTicker', symbol).start(dbpool, signal['pair'], bot)
                 context.bot_data['market_data'][signal['pair']] = True
                 context.bot_data['market_data_stream'][signal['pair']] = str(stream)
