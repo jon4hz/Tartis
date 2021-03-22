@@ -2,6 +2,7 @@
 ⚠️ At the moment this project is still work in progress ⚠️
 ## About
 This will be a trading bot that uses signals from [Telegram](https://telegram.org).
+
 ### Limitations
 At the beginning the bot will have a few limitations:
 * Crypto only. No support for stocks or forex planned!
@@ -18,7 +19,7 @@ At the beginning the bot will have a few limitations:
 Currently I have planned the following features. I don't know yet when and if I can implement all of them but I will try my best.
 * **Trading**: Open, close, mananage and overwatch your trades.
 * **Autotrading**: Automatically open trades from certain channels.
-* **Trailing**: Nothing better than moving your stop loss into profit.
+* **Trailing**: Nothing better than moving your stop loss into profit. (very simple first, advanced might follow)
 * **Notifications**: Fall out of bed in shock at every trade.
 * **History**: Always be reminded of your bad decisions.
 
@@ -27,6 +28,12 @@ I cannot guarantee any profit from using the bot. I am not responsible for any k
 
 ## Contribute
 This is an open source project which welcomes any kind of contributions. 
+### Setting up the development environment
+For the development `python3.8` (unicorn-binance-websocket-api dependency) is necessary.
+#### Python venv
+I recommend to use a python venv for an optimal installation of the development environement.
+To start the venv simply run `python3.8 -m venv venv` and activate it with `source venv/bin/activate`.
+If you want to leave the venv, execute `deactivate`.
 ### Contributors 
 [![Contributors](https://contributors-img.web.app/image?repo=jon4hz/tartis)](https://github.com/jon4hz/tartis/graphs/contributors)
 ## Donate
