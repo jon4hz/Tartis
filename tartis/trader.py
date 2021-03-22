@@ -114,30 +114,30 @@ class market_data():
                                 },
                             }
 
-                    self.price = decimal.Decimal(self.msg.get('c'))
+                    self.price = float(self.msg.get('c'))
                     for trade in self.trades:
                         for target_type in ['entries', 'tps', 'sls']:
                             for i in range(len(self.trades[trade][target_type]['point'])):
                                 if not self.trades[trade][target_type]['filled'][i]:
                                     if self.trades[trade]['direction'] == 'long':
                                         if target_type == 'entries' and self.price == self.trades[trade][target_type]['point'][i]:
-                                            print(f'Entry target {i+1} reached')
+                                            print(f'Entry target {i+1} reached, {self.trades[trade]["symbol"]}')
                                             # update database
                                         elif target_type == 'tps' and self.price == self.trades[trade][target_type]['point'][i]:
-                                            print(f'TP target {i+1} reached')
+                                            print(f'TP target {i+1} reached, {self.trades[trade]["symbol"]}')
                                             # update database
                                         elif target_type == 'sls' and self.price == self.trades[trade][target_type]['point'][i]:
-                                            print(f'TP target {i+1} reached')
+                                            print(f'TP target {i+1} reached, {self.trades[trade]["symbol"]}')
                                             # update database
                                     elif self.trades[trade]['direction'] == 'short':
                                         if target_type == 'entries' and self.price == self.trades[trade][target_type]['point'][i]:
-                                            print(f'Entry target {i+1} reached')
+                                            print(f'Entry target {i+1} reached, {self.trades[trade]["symbol"]}')
                                             # update database
                                         elif target_type == 'tps' and self.price == self.trades[trade][target_type]['point'][i]:
-                                            print(f'TP target {i+1} reached')
+                                            print(f'TP target {i+1} reached, {self.trades[trade]["symbol"]}')
                                             # update database
                                         elif target_type == 'sls' and self.price == self.trades[trade][target_type]['point'][i]:
-                                            print(f'TP target {i+1} reached')
+                                            print(f'TP target {i+1} reached, {self.trades[trade]["symbol"]}')
                                             # update database
                     
                     self.cur.close()
