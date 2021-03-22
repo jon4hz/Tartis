@@ -1,0 +1,6 @@
+unicorn-binance-websocket-api
+ccxt
+emoji
+regex
+python-telegram-bot
+psycopg2

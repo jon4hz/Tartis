@@ -4,6 +4,8 @@ config.ini
 *.crt
 *.key
 test.py
+tmp.py
+config.py
 
 # Python
 __pycache__
@@ -20,3 +22,19 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+
+# Softlinks
+test/*/tartis
+test/*/*/tartis
+
+# docker 
+.secrets
+database/tartis
+database.db
+
+#PTB
+persitenceBot.pickle*
+
+# database
+*session.sql
