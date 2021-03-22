@@ -23,7 +23,8 @@ from telegram import (
     ParseMode,
     ReplyKeyboardMarkup,
     InlineKeyboardMarkup,
-    InlineKeyboardButton
+    InlineKeyboardButton,
+    Bot
 )
 # import tartis
 import tartis
@@ -60,17 +61,6 @@ def init(update, context):
 
     if not bot_initialized:
         print('Starting Tartis initialization...')
-        # remove old uuids from past streams
-        if 'market_data_stream' in context.bot_data.keys():
-            context.bot_data['market_data_stream'].clear()
-        else:
-            context.bot_data['market_data_stream'] = {}
-
-        if context.bot_data.get('market_data'):
-            for i in context.bot_data.get('market_data'):
-                if context.bot_data['market_data'].get(i):
-                    stream = tartis.market_data('binance.com-futures', 'miniTicker', i).start(dbpool)
-                    context.bot_data['market_data_stream'][i] = str(stream)
 
         # create database for trades
         # database
@@ -86,6 +76,7 @@ def init(update, context):
             open_time     integer    ,
             close_time    integer    ,
             channel_trade boolean    ,
+            telegram_message_id bigint,
             PRIMARY KEY (id)
         );
         ''',
@@ -93,9 +84,10 @@ def init(update, context):
         CREATE TABLE IF NOT EXISTS entries
         (
             id       bigserial,
-            trade_id bigint  NOT NULL,
+            trade_id bigserial  NOT NULL,
             price    decimal NOT NULL,
-            quantity decimal NOT NULL,
+            percent  decimal,
+            quantity decimal,
             filled   boolean,
             PRIMARY KEY (id),
             CONSTRAINT FK_trades_TO_entries
@@ -106,9 +98,10 @@ def init(update, context):
         CREATE TABLE IF NOT EXISTS sls
         (
             id       bigserial,
-            trade_id bigint ,
+            trade_id bigserial NOT NULL,
             price    decimal NOT NULL,
-            quantity decimal NOT NULL,
+            percent  decimal,
+            quantity decimal,
             filled   boolean,
             PRIMARY KEY (id),
             CONSTRAINT FK_trades_TO_sls
@@ -120,9 +113,10 @@ def init(update, context):
         CREATE TABLE IF NOT EXISTS tps
         (
             id       bigserial,
-            trade_id bigint  NOT NULL,
+            trade_id bigserial  NOT NULL,
             price    decimal NOT NULL,
-            quantity decimal NOT NULL,
+            percent  decimal,
+            quantity decimal,
             filled   boolean,
             PRIMARY KEY (id),
             CONSTRAINT FK_trades_TO_tps
@@ -134,6 +128,19 @@ def init(update, context):
             cur.execute(statement)
         conn.commit()
         dbpool.putconn(conn)
+
+        # remove old uuids from past streams
+        if 'market_data_stream' in context.bot_data.keys():
+            context.bot_data['market_data_stream'].clear()
+        else:
+            context.bot_data['market_data_stream'] = {}
+
+        if context.bot_data.get('market_data'):
+            for i in context.bot_data.get('market_data'):
+                if context.bot_data['market_data'].get(i):
+                    j = ''.join(i.split('/'))
+                    stream = tartis.market_data('binance.com-futures', 'miniTicker', j).start(dbpool, i, bot)
+                    context.bot_data['market_data_stream'][i] = str(stream)
 
         bot_initialized = True
         print('Initialization complete!')
@@ -164,32 +171,82 @@ def get_message(update, context):
                 direction,
                 exchange,
                 open_time,
-                channel_trade
+                channel_trade,
+                telegram_message_id
             ) VALUES (
                 '{signal['pair']}',
                 '{direction}',
                 '{exchange}',
                 '{int(datetime.datetime.utcnow().timestamp())}',
-                True
+                True,
+                '{update.message.message_id}'
             ) RETURNING id
             '''
         )
-        print(cur.fetchone())
+        
+        pk = cur.fetchone()[0]
+
+        for i in range(len(signal['entry']['point'])):
+            cur.execute(
+                f'''
+                INSERT INTO entries(
+                    price,
+                    percent,
+                    trade_id
+                ) VALUES (
+                    '{signal['entry']['point'][i]}',
+                    '{signal['entry']['percent'][i]}',
+                    '{pk}'
+                )
+                '''
+            )
+
+        for i in range(len(signal['tp']['point'])):
+            cur.execute(
+                f'''
+                INSERT INTO tps(
+                    price,
+                    percent,
+                    trade_id
+                ) VALUES (
+                    '{signal['tp']['point'][i]}',
+                    '{signal['tp']['percent'][i]}',
+                    '{pk}'
+                )
+                '''
+            )
+
+        for i in range(len(signal['sl']['point'])):
+            cur.execute(
+                f'''
+                INSERT INTO sls(
+                    price,
+                    percent,
+                    trade_id
+                ) VALUES (
+                    '{signal['sl']['point'][i]}',
+                    '{signal['sl']['percent'][i]}',
+                    '{pk}'
+                )
+                '''
+            )
+        
+        conn.commit()
+        cur.close()
         dbpool.putconn(conn)
         # start market websocket for symbol
-        if '/' in signal['pair']:
-            symbol = ''.join(signal['pair'].split('/'))
+        symbol = ''.join(signal['pair'].split('/'))
 
         if 'market_data' in context.bot_data.keys():
             if symbol not in context.bot_data['market_data']:
-                stream = tartis.market_data('binance.com-futures', 'miniTicker', symbol).start(dbpool)
-                context.bot_data['market_data'][symbol] = True
-                context.bot_data['market_data_stream'][symbol] = str(stream)
+                stream = tartis.market_data('binance.com-futures', 'miniTicker', symbol).start(dbpool, signal['pair'], bot)
+                context.bot_data['market_data'][signal['pair']] = True
+                context.bot_data['market_data_stream'][signal['pair']] = str(stream)
         else:
-            context.bot_data['market_data'] = {symbol: True}
-            stream = tartis.market_data('binance.com-futures', 'miniTicker', symbol).start(dbpool)
-            context.bot_data['market_data_stream'] = {symbol: str(stream)}
-            
+            context.bot_data['market_data'] = {signal['pair']: True}
+            stream = tartis.market_data('binance.com-futures', 'miniTicker', symbol).start(dbpool, signal['pair'], bot)
+            context.bot_data['market_data_stream'] = {signal['pair']: str(stream)}
+
 #==================================================================================================
 # MAIN
 #==================================================================================================
@@ -210,6 +267,7 @@ dbpool = ThreadedConnectionPool(
 
 # Telegram
 defaults = Defaults(parse_mode=ParseMode.HTML)
+bot = Bot(TOKEN)
 pp = PicklePersistence(filename='persitenceBot.pickle', single_file=True)
 updater = Updater(TOKEN, use_context=True, persistence=pp, defaults=defaults)
 dp = updater.dispatcher
