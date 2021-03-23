@@ -165,7 +165,7 @@ def get_message(update, context):
                 text = f'Error - {type(e).__name__}, {__file__}, {e.__traceback__.tb_lineno}, {e}'
             )
             context.bot.send_message(
-                chat_id = ADMIN_CHANNEL,
+                chat_id = os.environ.get('ADMIN_CHANNEL', ADMIN_CHANNEL),
                 text = update.effective_message.text
             )
             return
@@ -278,19 +278,19 @@ try:
         1, 
         100,
         dbname = 'tartis',
-        host = DB_HOSTNAME,
-        port = DB_PORT,
-        user = DB_USERNAME,
-        password = DB_PASSWORD
+        host = os.environ.get('DB_HOSTNAME', DB_HOSTNAME),
+        port = os.environ.get('DB_PORT', DB_PORT),
+        user = os.environ.get('DB_USERNAME', DB_USERNAME),
+        password = os.environ.get('DB_PASSWORD', DB_PASSWORD)
     )
 except psycopg2.OperationalError as e:
     print(f'{datetime.datetime.utcnow()} - Error: Could not connect to database - {e}')
     
 # Telegram
 defaults = Defaults(parse_mode=ParseMode.HTML)
-bot = Bot(TOKEN)
+bot = Bot(os.environ.get('TOKEN', TOKEN))
 pp = PicklePersistence(filename='persitenceBot.pickle', single_file=True)
-updater = Updater(TOKEN, use_context=True, persistence=pp, defaults=defaults)
+updater = Updater(os.environ.get('TOKEN', TOKEN), use_context=True, persistence=pp, defaults=defaults)
 dp = updater.dispatcher
 
 dp.add_handler(
