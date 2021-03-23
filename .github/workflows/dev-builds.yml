@@ -33,6 +33,13 @@ jobs:
           cache-from: type=registry,ref=jon4hz/tartis_channel_bot:cache
           cache-to: type=registry,ref=jon4hz/tartis_channel_bot:cache
 
-      -
+      - 
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
+      
+      - 
+        name: Trigger Webhook
+        uses: distributhor/workflow-webhook@v1.0.5
+        env:
+          webhook_url: ${{ secrets.WEBHOOK_DEV_URL }}
+          webhook_secret: ${{ secrets.WEBHOOK_DEV_SECRET }}
