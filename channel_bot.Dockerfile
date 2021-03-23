@@ -7,7 +7,7 @@ RUN apk add --no-cache gcc musl-dev postgresql-dev python3-dev openssl-dev libff
 RUN pip install --upgrade pip &&\ 
     pip install --no-cache-dir -r requirements.txt
 COPY tartis ./tartis
-COPY test/channel_signals/channel_bot.py test/channel_signals/config.py ./
+COPY test/channel_signals/channel_bot.py ./
 RUN chown -R 1000. . *
 USER 1000
 CMD [ "python", "-u", "channel_bot.py" ]
