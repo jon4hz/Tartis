@@ -1,5 +1,7 @@
 # Tartis (Time and relative Trades in Space)
 [![docs](https://github.com/jon4hz/tartis/actions/workflows/docs.yml/badge.svg)](https://github.com/jon4hz/tartis/actions/workflows/docs.yml) [![dev and testing](https://github.com/jon4hz/tartis/actions/workflows/dev-builds.yml/badge.svg)](https://github.com/jon4hz/tartis/actions/workflows/dev-builds.yml)
+
+
 ⚠️ At the moment this project is still work in progress ⚠️
 ## About
 This will be a trading bot that uses signals from [Telegram](https://telegram.org).
