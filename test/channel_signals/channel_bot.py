@@ -6,14 +6,22 @@
 #
 #####################################################################################################################################################
 # import configs
-from config import (
-    TOKEN,
+try:
+    from config import (
+        TOKEN,
+        ADMIN_CHANNEL,
+        DB_HOSTNAME,
+        DB_USERNAME,
+        DB_PASSWORD,
+        DB_PORT
+    )
+except ImportError:
+    (TOKEN,
     ADMIN_CHANNEL,
     DB_HOSTNAME,
     DB_USERNAME,
     DB_PASSWORD,
-    DB_PORT
-)
+    DB_PORT) = range(6)
 # import python-telegram-bot modules
 from telegram.ext import (
     Updater,
