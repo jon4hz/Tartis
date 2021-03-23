@@ -15,7 +15,7 @@ cur.execute(
 
     WHERE   close_time IS NULL AND 
             channel_trade = TRUE AND 
-            symbol = 'XMR/USDT'
+            symbol = 'BTC/USDT'
     '''
 )
 data = cur.fetchall()
@@ -51,19 +51,13 @@ for i in data:
                 'filled': []
             },
         }
+        offset = 0
+        for j in ['entries', 'tps', 'sls']:
+            if sum(trades[i[0]][j]['percent']) != 100:
+                trades[i[0]][j]['point'].append(i[4+offset])
+                trades[i[0]][j]['percent'].append(i[5+offset])
+                trades[i[0]][j]['filled'].append(i[6+offset])
+            offset += 3
 
 price = 1000
 print(trades)
-for trade in trades:
-    for target_type in ['entries', 'tps', 'sls']:
-        for i in range(len(trades[trade][target_type]['point'])):
-            if not trades[trade][target_type]['filled'][i]:
-                if target_type == 'entries' and price > trades[trade][target_type]['point'][i]:
-                    print(f'Entry target {i+1} reached')
-                    # update database
-                elif target_type == 'tps' and price > trades[trade][target_type]['point'][i]:
-                    print(f'TP target {i+1} reached')
-                    # update database
-                elif target_type == 'sls' and price > trades[trade][target_type]['point'][i]:
-                    print(f'TP target {i+1} reached')
-                    # update database

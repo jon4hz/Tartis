@@ -7,7 +7,8 @@
 #####################################################################################################################################################
 # import configs
 from config import (
-    TOKEN
+    TOKEN,
+    ADMIN_CHANNEL
 )
 # import python-telegram-bot modules
 from telegram.ext import (
@@ -150,9 +151,20 @@ def init(update, context):
 
 def get_message(update, context):
     if bot_initialized:
-        signal = message_parser.parse_message(update.effective_message.text)
-        print(signal)
-
+        try:
+            signal = message_parser.parse_message(update.effective_message.text)
+            print(signal)
+        
+        except Exception as e:
+            context.bot.send_message(
+                chat_id = update.effective_chat.id,
+                text = f'Error - {type(e).__name__}, {__file__}, {e.__traceback__.tb_lineno}, {e}'
+            )
+            context.bot.send_message(
+                chat_id = ADMIN_CHANNEL,
+                text = update.effective_message.text
+            )
+            return
         # get direction
         if float(signal['entry']['point'][0]) < float(signal['tp']['point'][0]):
             direction = 'long'
@@ -257,16 +269,19 @@ def get_message(update, context):
 message_parser = tartis.messageParser()
 
 # database
-dbpool = ThreadedConnectionPool(
-    1, 
-    100,
-    dbname = 'tartis',
-    host = 'localhost',
-    port = '5432',
-    user = 'tartis',
-    password = 'tmppassword'
-)
-
+try:
+    dbpool = ThreadedConnectionPool(
+        1, 
+        100,
+        dbname = 'tartis',
+        host = 'localhost',
+        port = '5432',
+        user = 'tartis',
+        password = 'tmppassword'
+    )
+except psycopg2.OperationalError as e:
+    print(f'{datetime.datetime.utcnow()} - Error: Could not connect to database - {e}')
+    
 # Telegram
 defaults = Defaults(parse_mode=ParseMode.HTML)
 bot = Bot(TOKEN)

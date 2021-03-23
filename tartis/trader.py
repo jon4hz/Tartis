@@ -118,6 +118,13 @@ class market_data():
                                     'filled': []
                                 },
                             }
+                            offset = 0
+                            for j in ['entries', 'tps', 'sls']:
+                                if sum(trades[i[0]][j]['percent']) != 100:
+                                    trades[i[0]][j]['point'].append(i[4+offset])
+                                    trades[i[0]][j]['percent'].append(i[5+offset])
+                                    trades[i[0]][j]['filled'].append(i[6+offset])
+                                offset += 3
 
                     price = float(msg.get('c'))
                     # store decimals for price
@@ -126,19 +133,16 @@ class market_data():
                     if last_f_digits > f_digits:
                         f_digits = last_f_digits
 
-                    # debug
-                    print(price)
                     for trade in trades:
                         for target_type in ['entries', 'tps', 'sls']:
                             for i in range(len(trades[trade][target_type]['point'])):
+                                
                                 if not trades[trade][target_type]['filled'][i]:
-                                    
                                     point = trades[trade][target_type]['point'][i]
                                     point = float(f"{str(point).split('.')[0]}.{str(point).split('.')[1][:f_digits]}")
-
-                                    if trades[trade]['direction'] == 'long':                  
+                                    if trades[trade]['direction'] == 'long':                 
                                         if target_type == 'entries' and price == point:
-                                            print(f'Entry target {i+1} reached, {trades[trade]["symbol"]}')
+                                            message = f'Entry target {i+1} reached, {trades[trade]["symbol"]}'
                                             cur.execute(
                                                 f'''
                                                 UPDATE entries
@@ -147,9 +151,15 @@ class market_data():
                                                 '''
                                             )
                                             conn.commit()
+                                            print(message)
+                                            bot.send_message(
+                                                chat_id = trades[trade].get('telegram_channel_id'),
+                                                text = message,
+                                                reply_to_message_id = trades[trade].get('telegram_message_id')
+                                            )
 
                                         elif target_type == 'tps' and price == point:
-                                            print(f'TP target {i+1} reached, {trades[trade]["symbol"]}')
+                                            message = f'TP target {i+1} reached, {trades[trade]["symbol"]}'
                                             cur.execute(
                                                 f'''
                                                 UPDATE tps
@@ -158,9 +168,15 @@ class market_data():
                                                 '''
                                             )
                                             conn.commit()
+                                            print(message)
+                                            bot.send_message(
+                                                chat_id = trades[trade].get('telegram_channel_id'),
+                                                text = message,
+                                                reply_to_message_id = trades[trade].get('telegram_message_id')
+                                            )
 
                                         elif target_type == 'sls' and price == point:
-                                            print(f'TP target {i+1} reached, {trades[trade]["symbol"]}')
+                                            message = f'TP target {i+1} reached, {trades[trade]["symbol"]}'
                                             cur.execute(
                                                 f'''
                                                 UPDATE sls
@@ -169,10 +185,16 @@ class market_data():
                                                 '''
                                             )
                                             conn.commit()
+                                            print(message)
+                                            bot.send_message(
+                                                chat_id = trades[trade].get('telegram_channel_id'),
+                                                text = message,
+                                                reply_to_message_id = trades[trade].get('telegram_message_id')
+                                            )
 
                                     elif trades[trade]['direction'] == 'short':
                                         if target_type == 'entries' and price != point:
-                                            print(f'Entry target {i+1} reached, {trades[trade]["symbol"]}')
+                                            message = f'Entry target {i+1} reached, {trades[trade]["symbol"]}'
                                             cur.execute(
                                                 f'''
                                                 UPDATE entries
@@ -181,9 +203,15 @@ class market_data():
                                                 '''
                                             )
                                             conn.commit()
+                                            print(message)
+                                            bot.send_message(
+                                                chat_id = trades[trade].get('telegram_channel_id'),
+                                                text = message,
+                                                reply_to_message_id = trades[trade].get('telegram_message_id')
+                                            )
 
                                         elif target_type == 'tps' and price == point:
-                                            print(f'TP target {i+1} reached, {trades[trade]["symbol"]}')
+                                            message = f'TP target {i+1} reached, {trades[trade]["symbol"]}'
                                             cur.execute(
                                                 f'''
                                                 UPDATE tps
@@ -192,9 +220,15 @@ class market_data():
                                                 '''
                                             )
                                             conn.commit()
+                                            print(message)
+                                            bot.send_message(
+                                                chat_id = trades[trade].get('telegram_channel_id'),
+                                                text = message,
+                                                reply_to_message_id = trades[trade].get('telegram_message_id')
+                                            )
 
                                         elif target_type == 'sls' and price == point:
-                                            print(f'TP target {i+1} reached, {trades[trade]["symbol"]}')
+                                            message = f'TP target {i+1} reached, {trades[trade]["symbol"]}'
                                             cur.execute(
                                                 f'''
                                                 UPDATE sls
@@ -203,6 +237,12 @@ class market_data():
                                                 '''
                                             )
                                             conn.commit()
+                                            print(message)
+                                            bot.send_message(
+                                                chat_id = trades[trade].get('telegram_channel_id'),
+                                                text = message,
+                                                reply_to_message_id = trades[trade].get('telegram_message_id')
+                                            )
                     
                     cur.close()
                     pool.putconn(conn)
