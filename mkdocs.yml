@@ -10,7 +10,6 @@ theme:
 
 plugins:
     - search
-    - pdf-export
 
 nav:
     - Home: index.md
