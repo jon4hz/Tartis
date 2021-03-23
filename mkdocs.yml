@@ -1,0 +1,20 @@
+site_name: Tartis
+
+repo_url: https://github.com/jon4hz/tartis
+repo_name: jon4hz/tartis
+
+theme: 
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+    - search
+
+nav:
+    - Home: index.md
+    - Quickstart with Docker: 'docker.md'
+    - Usage: 
+        - Telegram: telegram.md
+    - Signal Formatting: formatting.md
+    - Limitations: limits.md
