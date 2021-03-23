@@ -1,6 +1,6 @@
 FROM python:3.8-alpine
 LABEL Author="jon4hz" 
-LABEL version="1"
+LABEL version="1.0"
 WORKDIR /usr/src/app
 COPY requirements.txt ./
 RUN apk add --no-cache gcc musl-dev postgresql-dev python3-dev openssl-dev libffi-dev g++ cargo
