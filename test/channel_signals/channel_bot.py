@@ -8,7 +8,11 @@
 # import configs
 from config import (
     TOKEN,
-    ADMIN_CHANNEL
+    ADMIN_CHANNEL,
+    DB_HOSTNAME,
+    DB_USERNAME,
+    DB_PASSWORD,
+    DB_PORT
 )
 # import python-telegram-bot modules
 from telegram.ext import (
@@ -274,10 +278,10 @@ try:
         1, 
         100,
         dbname = 'tartis',
-        host = 'localhost',
-        port = '5432',
-        user = 'tartis',
-        password = 'tmppassword'
+        host = DB_HOSTNAME,
+        port = DB_PORT,
+        user = DB_USERNAME,
+        password = DB_PASSWORD
     )
 except psycopg2.OperationalError as e:
     print(f'{datetime.datetime.utcnow()} - Error: Could not connect to database - {e}')

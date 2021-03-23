@@ -1,5 +1,5 @@
 import ccxt
-import threading, time, os, psycopg2, decimal
+import threading, time, os, psycopg2, decimal, logging
 from unicorn_binance_websocket_api import BinanceWebSocketApiManager
 from . import error
 
@@ -136,113 +136,51 @@ class market_data():
                     for trade in trades:
                         for target_type in ['entries', 'tps', 'sls']:
                             for i in range(len(trades[trade][target_type]['point'])):
-                                
                                 if not trades[trade][target_type]['filled'][i]:
+
                                     point = trades[trade][target_type]['point'][i]
                                     point = float(f"{str(point).split('.')[0]}.{str(point).split('.')[1][:f_digits]}")
+                                    
+                                    message = ''
+
                                     if trades[trade]['direction'] == 'long':                 
                                         if target_type == 'entries' and price == point:
                                             message = f'Entry target {i+1} reached, {trades[trade]["symbol"]}'
-                                            cur.execute(
-                                                f'''
-                                                UPDATE entries
-                                                SET filled = True
-                                                WHERE trade_id = '{trade}' and price = '{trades[trade][target_type]['point'][i]}';
-                                                '''
-                                            )
-                                            conn.commit()
-                                            print(message)
-                                            bot.send_message(
-                                                chat_id = trades[trade].get('telegram_channel_id'),
-                                                text = message,
-                                                reply_to_message_id = trades[trade].get('telegram_message_id')
-                                            )
-
+                                            
                                         elif target_type == 'tps' and price == point:
                                             message = f'TP target {i+1} reached, {trades[trade]["symbol"]}'
-                                            cur.execute(
-                                                f'''
-                                                UPDATE tps
-                                                SET filled = True
-                                                WHERE trade_id = '{trade}' and price = '{trades[trade][target_type]['point'][i]}';
-                                                '''
-                                            )
-                                            conn.commit()
-                                            print(message)
-                                            bot.send_message(
-                                                chat_id = trades[trade].get('telegram_channel_id'),
-                                                text = message,
-                                                reply_to_message_id = trades[trade].get('telegram_message_id')
-                                            )
 
-                                        elif target_type == 'sls' and price == point:
-                                            message = f'TP target {i+1} reached, {trades[trade]["symbol"]}'
-                                            cur.execute(
-                                                f'''
-                                                UPDATE sls
-                                                SET filled = True
-                                                WHERE trade_id = '{trade}' and price = '{trades[trade][target_type]['point'][i]}';
-                                                '''
-                                            )
-                                            conn.commit()
-                                            print(message)
-                                            bot.send_message(
-                                                chat_id = trades[trade].get('telegram_channel_id'),
-                                                text = message,
-                                                reply_to_message_id = trades[trade].get('telegram_message_id')
-                                            )
+                                        elif target_type == 'sls' and price <= point:
+                                            message = f'SL target {i+1} reached, {trades[trade]["symbol"]}'
 
                                     elif trades[trade]['direction'] == 'short':
-                                        if target_type == 'entries' and price != point:
+                                        if target_type == 'entries' and price == point:
                                             message = f'Entry target {i+1} reached, {trades[trade]["symbol"]}'
-                                            cur.execute(
+
+                                        elif target_type == 'tps' and price == point:
+                                            message = f'TP target {i+1} reached, {trades[trade]["symbol"]}'
+
+                                        elif target_type == 'sls' and price >= point:
+                                            message = f'SL target {i+1} reached, {trades[trade]["symbol"]}'
+                                    
+                                    if message:
+                                        cur.execute(
                                                 f'''
                                                 UPDATE entries
                                                 SET filled = True
                                                 WHERE trade_id = '{trade}' and price = '{trades[trade][target_type]['point'][i]}';
                                                 '''
-                                            )
-                                            conn.commit()
-                                            print(message)
+                                        )
+                                        conn.commit()
+                                        print(message)
+                                        try:
                                             bot.send_message(
                                                 chat_id = trades[trade].get('telegram_channel_id'),
                                                 text = message,
                                                 reply_to_message_id = trades[trade].get('telegram_message_id')
                                             )
-
-                                        elif target_type == 'tps' and price == point:
-                                            message = f'TP target {i+1} reached, {trades[trade]["symbol"]}'
-                                            cur.execute(
-                                                f'''
-                                                UPDATE tps
-                                                SET filled = True
-                                                WHERE trade_id = '{trade}' and price = '{trades[trade][target_type]['point'][i]}';
-                                                '''
-                                            )
-                                            conn.commit()
-                                            print(message)
-                                            bot.send_message(
-                                                chat_id = trades[trade].get('telegram_channel_id'),
-                                                text = message,
-                                                reply_to_message_id = trades[trade].get('telegram_message_id')
-                                            )
-
-                                        elif target_type == 'sls' and price == point:
-                                            message = f'TP target {i+1} reached, {trades[trade]["symbol"]}'
-                                            cur.execute(
-                                                f'''
-                                                UPDATE sls
-                                                SET filled = True
-                                                WHERE trade_id = '{trade}' and price = '{trades[trade][target_type]['point'][i]}';
-                                                '''
-                                            )
-                                            conn.commit()
-                                            print(message)
-                                            bot.send_message(
-                                                chat_id = trades[trade].get('telegram_channel_id'),
-                                                text = message,
-                                                reply_to_message_id = trades[trade].get('telegram_message_id')
-                                            )
+                                        except Exception as e:
+                                            logging.error(f'Could not send message - {e}')
                     
                     cur.close()
                     pool.putconn(conn)
