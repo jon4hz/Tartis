@@ -166,7 +166,7 @@ class market_data():
                                     if message:
                                         cur.execute(
                                                 f'''
-                                                UPDATE entries
+                                                UPDATE {target_type}
                                                 SET filled = True
                                                 WHERE trade_id = '{trade}' and price = '{trades[trade][target_type]['point'][i]}';
                                                 '''
