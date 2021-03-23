@@ -37,11 +37,11 @@ class socket:
         while True:
             if binance_websocket_api_manager.is_manager_stopping():
                 exit(0)
-            self.oldest_stream_data_from_stream_buffer = binance_websocket_api_manager.pop_stream_data_from_stream_buffer()
-            if self.oldest_stream_data_from_stream_buffer is False:
+            oldest_stream_data_from_stream_buffer = binance_websocket_api_manager.pop_stream_data_from_stream_buffer()
+            if oldest_stream_data_from_stream_buffer is False:
                 time.sleep(0.01)
             else:
-                print(self.oldest_stream_data_from_stream_buffer)
+                print(oldest_stream_data_from_stream_buffer)
 
     def start(self):
         user_data_stream = self.binance_futures_websocket.create_stream(self.stream, self.coin, api_key=api_key, api_secret=api_secret, output='dict')
@@ -52,12 +52,11 @@ class socket:
         self.binance_futures_websocket.stop_stream(stream)
 
 #socket = socket('binance.com-futures', '!userData')
-print(1)
 socket1 = socket('binance.com', 'miniTicker', 'BTCUSDT')
 x = socket1.start()
-socket2 = socket('binance.com', 'miniTicker', 'ETHUSDT')
+""" socket2 = socket('binance.com', 'miniTicker', 'ETHUSDT')
 print(2)
 socket2.start()
 time.sleep(4)
 socket1.stop(x)
-print('Stop stuff')
+print('Stop stuff') """
