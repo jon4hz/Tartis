@@ -153,7 +153,7 @@ class market_data():
                                 if not trades[trade][target_type]['filled'][i]:
 
                                     point = trades[trade][target_type]['point'][i]
-                                    point = float(f"{str(point).split('.')[0]}.{str(point).split('.')[1][:f_digits]}")
+                                    point = float(round(point, f_digits))
                                     
                                     message = ''
 
