@@ -46,7 +46,8 @@ import sys, logging, os, psycopg2, json, datetime
 from psycopg2.pool import ThreadedConnectionPool
 
 logging.basicConfig(level=logging.INFO,
-                    filename=os.path.basename(__file__) + '.log',
+                    handlers=[logging.FileHandler(f'{os.path.basename(__file__)}.log', mode='w'),
+                            logging.StreamHandler()],
                     format="{asctime} [{levelname:8}] {process} {thread} {module}: {message}",
                     style="{")
 
@@ -314,4 +315,5 @@ dp.add_handler(
 )
 
 updater.start_polling()
+
 updater.idle()
