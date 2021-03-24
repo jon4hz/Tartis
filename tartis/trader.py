@@ -161,8 +161,12 @@ class market_data():
                                         if target_type == 'entries' and price == point:
                                             message = f'Entry target {i+1} reached, {trades[trade]["symbol"]}, {point}'
                                             
-                                        elif target_type == 'tps' and price == point:
-                                            message = f'TP target {i+1} reached, {trades[trade]["symbol"]}, {point}'
+                                        elif target_type == 'tps' and price >= point:
+                                            # check if any entry is hit
+                                            if any(trades[trade]['entries']['filled']):
+                                                message = f'TP target {i+1} reached, {trades[trade]["symbol"]}, {point}'
+                                            else:
+                                                message = f'TP target {i+1} reached before entry, {trades[trade]["symbol"]}, {point}'
 
                                         elif target_type == 'sls' and price <= point:
                                             message = f'SL target {i+1} reached, {trades[trade]["symbol"]}, {point}'
@@ -171,8 +175,12 @@ class market_data():
                                         if target_type == 'entries' and price == point:
                                             message = f'Entry target {i+1} reached, {trades[trade]["symbol"]}, {point}'
 
-                                        elif target_type == 'tps' and price == point:
-                                            message = f'TP target {i+1} reached, {trades[trade]["symbol"]}, {point}'
+                                        elif target_type == 'tps' and price <= point:
+                                            # check if any entry is hit
+                                            if any(trades[trade]['entries']['filled']):
+                                                message = f'TP target {i+1} reached, {trades[trade]["symbol"]}, {point}'
+                                            else:
+                                                message = f'TP target {i+1} reached before entry, {trades[trade]["symbol"]}, {point}'
 
                                         elif target_type == 'sls' and price >= point:
                                             message = f'SL target {i+1} reached, {trades[trade]["symbol"]}, {point}'
