@@ -126,6 +126,8 @@ class market_data():
                                     trades[i[0]][j]['filled'].append(i[6+offset])
                                 offset += 3
 
+                    
+                    
                     price = float(msg.get('c'))
                     # store decimals for price
                     last_f_digits = int(str(price)[::-1].find('.'))
@@ -135,6 +137,18 @@ class market_data():
 
                     for trade in trades:
                         for target_type in ['entries', 'tps', 'sls']:
+                            # sort lists
+                            if trades[trade]['direction'] == 'long':
+                                reverse = False
+                            elif trades[trade]['direction'] == 'short':
+                                reverse = True
+                            trades[trade][target_type]['point'], trades[trade][target_type]['percent'], trades[trade][target_type]['filled'] = (list(t) for t in zip(*sorted(
+                                zip(
+                                    trades[trade][target_type]['point'], 
+                                    trades[trade][target_type]['percent'], 
+                                    trades[trade][target_type]['filled']
+                                ), reverse=reverse
+                                )))
                             for i in range(len(trades[trade][target_type]['point'])):
                                 if not trades[trade][target_type]['filled'][i]:
 
@@ -145,23 +159,23 @@ class market_data():
 
                                     if trades[trade]['direction'] == 'long':                 
                                         if target_type == 'entries' and price == point:
-                                            message = f'Entry target {i+1} reached, {trades[trade]["symbol"]}'
+                                            message = f'Entry target {i+1} reached, {trades[trade]["symbol"]}, {point}'
                                             
                                         elif target_type == 'tps' and price == point:
-                                            message = f'TP target {i+1} reached, {trades[trade]["symbol"]}'
+                                            message = f'TP target {i+1} reached, {trades[trade]["symbol"]}, {point}'
 
                                         elif target_type == 'sls' and price <= point:
-                                            message = f'SL target {i+1} reached, {trades[trade]["symbol"]}'
+                                            message = f'SL target {i+1} reached, {trades[trade]["symbol"]}, {point}'
 
                                     elif trades[trade]['direction'] == 'short':
                                         if target_type == 'entries' and price == point:
-                                            message = f'Entry target {i+1} reached, {trades[trade]["symbol"]}'
+                                            message = f'Entry target {i+1} reached, {trades[trade]["symbol"]}, {point}'
 
                                         elif target_type == 'tps' and price == point:
-                                            message = f'TP target {i+1} reached, {trades[trade]["symbol"]}'
+                                            message = f'TP target {i+1} reached, {trades[trade]["symbol"]}, {point}'
 
                                         elif target_type == 'sls' and price >= point:
-                                            message = f'SL target {i+1} reached, {trades[trade]["symbol"]}'
+                                            message = f'SL target {i+1} reached, {trades[trade]["symbol"]}, {point}'
                                     
                                     if message:
                                         cur.execute(
@@ -184,7 +198,7 @@ class market_data():
                     
                     cur.close()
                     pool.putconn(conn)
-                
+
     def start(self, pool, symbol, bot):
         if self.exchange == 'binance.com' or self.exchange == 'binance.com-futures':
             self.user_data_stream = self.binance_websocket.create_stream(self.stream, self.coin, output='dict')
