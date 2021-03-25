@@ -46,30 +46,23 @@ class socket:
 
     def start_websocket(self, bsm, stream, market):
         self.user_data_stream = self.bsm.create_stream(self.stream, self.market, api_key=api_key, api_secret=api_secret, output='dict')
-        return self.user_data_stream
+        print(threading.get_ident())
 
     def start(self):
-        
         self.worker_thread = threading.Thread(target=self.start_websocket, args=(self.bsm, self.stream, self.market))
         self.worker_thread.start()
-        self.user_data_stream = self.worker_thread.join()
 
-        return self.user_data_stream
-
-    def stop(self, stream):
-        self.bsm.stop_stream(stream)
+    def stop(self):
+        self.bsm.stop_stream(self.user_data_stream)
 
 
+print(threading.get_ident())
 loop = asyncio.new_event_loop()
 #socket = socket('binance.com-futures', '!userData')
 socket1 = socket('binance.com', 'miniTicker', 'BTCUSDT')
-x = socket1.start()
-time.sleep(5)
-socket1.stop(x)
-print('socket stopped')
-""" socket2 = socket('binance.com', 'miniTicker', 'ETHUSDT')
-print(2)
+socket1.start()
+socket2 = socket('binance.com', 'miniTicker', 'ETHUSDT')
 socket2.start()
 time.sleep(4)
-socket1.stop(x)
-print('Stop stuff') """
+socket1.stop()
+print('socket1 stopped')
