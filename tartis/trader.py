@@ -1,5 +1,5 @@
 import ccxt
-import threading, time, os, psycopg2, decimal, logging
+import threading, time, os, psycopg2, decimal, logging, datetime
 from unicorn_binance_websocket_api import BinanceWebSocketApiManager
 from . import error
 
@@ -156,35 +156,56 @@ class market_data():
                                     point = float(round(point, f_digits))
                                     
                                     message = ''
+                                    close_trade = False
 
                                     if trades[trade]['direction'] == 'long':                 
                                         if target_type == 'entries' and price == point:
                                             message = f'Entry target {i+1} reached, {trades[trade]["symbol"]}, {point}'
+                                            trades[trade][target_type]['filled'][i] = True
                                             
                                         elif target_type == 'tps' and price >= point:
                                             # check if any entry is hit
                                             if any(trades[trade]['entries']['filled']):
                                                 message = f'TP target {i+1} reached, {trades[trade]["symbol"]}, {point}'
+                                                trades[trade][target_type]['filled'][i] = True
                                             else:
                                                 message = f'TP target {i+1} reached before entry, {trades[trade]["symbol"]}, {point}'
+                                                trades[trade][target_type]['filled'][i] = True
+
+                                            if all(trades[trade]['tps']['filled']):
+                                                close_trade = True
+
 
                                         elif target_type == 'sls' and price <= point:
                                             message = f'SL target {i+1} reached, {trades[trade]["symbol"]}, {point}'
+                                            trades[trade][target_type]['filled'][i] = True
+                                            close_trade = True
+
 
                                     elif trades[trade]['direction'] == 'short':
                                         if target_type == 'entries' and price == point:
                                             message = f'Entry target {i+1} reached, {trades[trade]["symbol"]}, {point}'
+                                            trades[trade][target_type]['filled'][i] = True
 
                                         elif target_type == 'tps' and price <= point:
                                             # check if any entry is hit
                                             if any(trades[trade]['entries']['filled']):
                                                 message = f'TP target {i+1} reached, {trades[trade]["symbol"]}, {point}'
+                                                trades[trade][target_type]['filled'][i] = True
                                             else:
                                                 message = f'TP target {i+1} reached before entry, {trades[trade]["symbol"]}, {point}'
+                                                trades[trade][target_type]['filled'][i] = True
+
+                                            if all(trades[trade]['tps']['filled']):
+                                                close_trade = True
 
                                         elif target_type == 'sls' and price >= point:
                                             message = f'SL target {i+1} reached, {trades[trade]["symbol"]}, {point}'
-                                    
+                                            trades[trade][target_type]['filled'][i] = True
+
+                                            # close trade
+                                            close_trade = True
+
                                     if message:
                                         cur.execute(
                                                 f'''
@@ -203,7 +224,18 @@ class market_data():
                                             )
                                         except Exception as e:
                                             logging.error(f'Could not send message - {e}')
-                    
+                                    
+
+                                    if close_trade:
+                                        # close trade
+                                        cur.execute(
+                                            f'''
+                                            UPDATE trades
+                                            SET close_time = '{int(datetime.datetime.utcnow().timestamp())}'
+                                            WHERE id = '{trade}'
+                                            '''
+                                        )
+                                        conn.commit()                    
                     cur.close()
                     pool.putconn(conn)
 
