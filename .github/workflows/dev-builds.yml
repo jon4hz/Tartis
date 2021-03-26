@@ -39,7 +39,7 @@ jobs:
       
       - 
         name: Trigger Webhook
-        uses: jon4hz/workflow-webhook@v1.0.6
+        uses: jon4hz/workflow-webhook@v1.0.7
         continue-on-error: true
         env:
           webhook_url: ${{ secrets.WEBHOOK_DEV_URL }}
