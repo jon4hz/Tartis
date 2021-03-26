@@ -149,6 +149,7 @@ class market_data():
                                     trades[trade][target_type]['filled']
                                 ), reverse=reverse
                                 )))
+                                
                             for i in range(len(trades[trade][target_type]['point'])):
                                 if not trades[trade][target_type]['filled'][i]:
 
