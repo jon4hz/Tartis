@@ -1,3 +1,6 @@
+
+⚠️ Complete rework and restructure is in planning ⚠️
+
 # Tartis (Time and relative Trades in Space)
 [![docs](https://github.com/jon4hz/tartis/actions/workflows/docs.yml/badge.svg)](https://github.com/jon4hz/tartis/actions/workflows/docs.yml) [![dev and testing](https://github.com/jon4hz/tartis/actions/workflows/dev-builds.yml/badge.svg)](https://github.com/jon4hz/tartis/actions/workflows/dev-builds.yml)
 
